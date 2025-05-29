@@ -1,0 +1,1 @@
+# japanese-lecture-translator
