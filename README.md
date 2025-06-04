@@ -11,10 +11,10 @@
     - OpenAI API key
     - google API
   - 今できること
-    ✅ Script翻訳 in txt
-    ✅ Notebook翻訳
-    ✅ 実行時にDocsにある最新promptを随時反映
-    ✅ （chunk毎に翻訳しているので、質が落ちる心配なし）
+    - ✅ Script翻訳 in txt
+    - ✅ Notebook翻訳
+    - ✅ 実行時にDocsにある最新promptを随時反映
+    - ✅ （chunk毎に翻訳しているので、質が落ちる心配なし）
   - これからできるようにしたいこと
     - regexでリンクからgoogle slide, notebook, scriptのIDを取得できるようにする（今はhttps://colab.research.google.com/drive/1wPAkQ3DgqpJzQ6hCL60yuvbZby_r4Aa8?usp=drive_link　みたいなのから1wPAkQ3DgqpJzQ6hCL60yuvbZby_r4Aa8　の部分を手動で取ってきてハードコーディングしているので）
     - APIに送る前に、和英対応表（https://docs.google.com/spreadsheets/d/1Jq87j4FvlDyt4wHHyGGCKmLVkWAxeJxSaiW0KulqKO8/edit?gid=0#gid=0）を使ってregexで直接翻訳してしまう
