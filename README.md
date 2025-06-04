@@ -29,3 +29,4 @@ Collaborator権限を付与されていない方はslackでOIKAWA Yunaにgithub�
   5.  和英対応表を随時、自動でpromptに反映
   6.  スケジュール自動作成
   7.  画像自動翻訳
+  8.  config.pyを作ることで各種API keyなどをmyclasses.pyから切り離す
