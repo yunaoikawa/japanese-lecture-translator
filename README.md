@@ -6,6 +6,7 @@
 特に追加して欲しい機能は以下”これからできるようにしたいこと”に書いてあります（自由に追加してください）。
 
 作業中は🚧（作業中）、✅（チェック）　をつけてください。
+
 Collaborator権限を付与されていない方はslackでOIKAWA Yunaにgithubのemailを教えてください。
 
 質問やコメントは[Issues](https://github.com/yunaoikawa/japanese-lecture-translator/issues)にお願いします！
