@@ -51,37 +51,37 @@ class GoogleDriveHandler:
         return fh.getvalue().decode("utf-8")
     
     def test_folder_access(self, folder_id):
-        """Test if we can access the folder and get its metadata."""
+        """フォルダーにアクセスできるかの確認"""
         try:
             # Try to get the folder metadata
             folder_info = self.service.files().get(fileId=folder_id, fields="id, name, permissions").execute()
-            print(f"✅ Folder access successful!")
-            print(f"🔍 Folder Name: {folder_info.get('name', 'Unknown')}")
-            print(f"🔍 Folder ID: {folder_info.get('id')}")
+            print(f" Folder access successful!")
+            print(f" Folder Name: {folder_info.get('name', 'Unknown')}")
+            print(f" Folder ID: {folder_info.get('id')}")
             return True
         except Exception as e:
-            print(f"❌ Cannot access folder: {e}")
+            print(f" Cannot access folder: {e}")
             return False
     
     def list_txt_files_in_folder(self, folder_id):
-        """Return list of .txt file metadata in a Google Drive folder."""
+        """パスに設定されているフォルダ内にある .txtファイルのメタデータを取得"""
         query = f"'{folder_id}' in parents and mimeType='text/plain' and trashed=false"
-        print(f"🔍 Debug: Searching with query: {query}")
-        print(f"🔍 Debug: Folder ID: {folder_id}")
+        print(f" Debug: Searching with query: {query}")
+        print(f" Debug: Folder ID: {folder_id}")
         results = self.service.files().list(q=query, fields="files(id, name)").execute()
         files = results.get('files', [])
-        print(f"🔍 Debug: Raw API response: {results}")
+        print(f" Debug: Raw API response: {results}")
         
         # Debug: Let's also see ALL files in the folder
         all_query = f"'{folder_id}' in parents and trashed=false"
         all_results = self.service.files().list(q=all_query, fields="files(id, name, mimeType)").execute()
         all_files = all_results.get('files', [])
-        print(f"🔍 Debug: ALL files in folder: {all_files}")
+        print(f" Debug: ALL files in folder: {all_files}")
         
         return files
     
     def download_txt_file(self, file_id, file_name, destination_folder):
-        """Download a .txt file from Google Drive to local folder."""
+        """テキストファイルをダウンロード"""
         os.makedirs(destination_folder, exist_ok=True)
         request = self.service.files().get_media(fileId=file_id)
         file_path = os.path.join(destination_folder, file_name)
@@ -157,9 +157,9 @@ class TranslationManager:
     
     def process_files(self, folder_id, prompt_doc_id, target_language="English", wait_time=7200):
         """Process all text files in a folder, translate them, and optionally delete originals"""
-        print(f"🔍 Testing access to folder: {folder_id}")
+        print(f" Testing access to folder: {folder_id}")
         if not self.drive_handler.test_folder_access(folder_id):
-            print("❌ Cannot proceed - folder access failed!")
+            print(" Cannot proceed - folder access failed!")
             return
             
         prompt_text = self.drive_handler.get_prompt_from_doc(prompt_doc_id)
