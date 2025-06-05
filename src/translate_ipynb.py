@@ -6,11 +6,16 @@ This script allows specifying notebook file IDs directly.
 PROMPT_DOC_ID = "1UHefUKZlUDyxJJ76Wmx9Di0c9U6d67Ni3JB9ofZr1KU"  # Replace with your prompt document ID
 
 import os
+import sys
 import json
 import re
 from time import sleep
 from langdetect import detect
-from GCI.translation.src.myclasses import (
+
+# Add current directory to path for importing myclasses
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from myclasses import (
     GoogleDriveHandler, TranslationHandler,
     KEY_FILE, SCOPES, OPENAI_API_KEY,
     DESTINATION_FOLDER, TRANSLATED_FOLDER

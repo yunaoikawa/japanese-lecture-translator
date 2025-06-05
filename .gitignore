@@ -14,9 +14,14 @@ venv/
 .env
 
 # Ignore Google service account keys (sensitive credentials)
-*.json
+*service-account*.json
+*-key.json
 google_key.json
 gen-lang-client-*.json
+
+# Ignore downloaded and translated files
+GCI_copy_downloads/
+GCI_copy_translated/
 
 # Optional: Ignore IDE/editor-specific files
 .vscode/
@@ -24,3 +29,13 @@ gen-lang-client-*.json
 
 # Optional: Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# Allow legitimate JSON files but be specific about excluding sensitive ones
+!package.json
+!tsconfig.json
+!requirements.json
+
+# Ignore any files with API keys or credentials in the name
+*api-key*
+*credentials*
+*secret*

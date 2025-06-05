@@ -2,9 +2,10 @@
 
 ### `myclasses.py`
 - 補助的なクラスやユーティリティ関数を定義。
-- 上の方のconfigでAPI keyなど色々定義してください。
-  - 自分のAPI keyをcommitしないように注意してください。
-  - ↑の危険性もあるし、別でconfig fileを作るのがいいかも... (実装希望のところに書いておきます）
+ セットアップ方法
+  1.Run  `pip install -r requirements.txt`
+  2.Rename `.env.example` to `.env` and update the API keys to your own. 
+  3.Place Google Service Account JSON key file as specified in .env file (e.g. Inside project root).
 
 ### `remove_overlap.py`
 - 例えばLevel0-Level1間で全く同じ部分をダブルで翻訳しなくていいように提案された機能
