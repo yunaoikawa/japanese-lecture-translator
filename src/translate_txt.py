@@ -4,7 +4,12 @@ This script imports functionality from Translator.py.
 """
 
 import os
-from GCI.translation.src.myclasses import (
+import sys
+
+# Add current directory to path for importing myclasses
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from myclasses import (
     TranslationManager, 
     KEY_FILE, SCOPES, OPENAI_API_KEY, 
     FOLDER_ID, PROMPT_DOC_ID, 

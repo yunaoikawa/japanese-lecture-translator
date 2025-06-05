@@ -10,15 +10,27 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import openai
+from dotenv import load_dotenv
 
-# Configuration constants
-KEY_FILE = "google_key.json"  # Path to your service account key file
+#Environment variables
+load_dotenv()
+
+#API keys from .env file 
+KEY_FILE = os.getenv("GOOGLE_KEY_FILE", "google_key.json")  # Path to your service account key file
 SCOPES = ['https://www.googleapis.com/auth/drive']  # Google API scopes
-OPENAI_API_KEY = ""  # Your OpenAI API key
-FOLDER_ID = "YOUR_GOOGLE_DRIVE_FOLDER_ID"  # ID of the folder containing files to translate
-PROMPT_DOC_ID = "YOUR_PROMPT_DOC_ID"  # ID of the Google Doc containing the translation prompt
-DESTINATION_FOLDER = "./GCI_copy_downloads"  # Local folder for downloaded files
-TRANSLATED_FOLDER = "./GCI_copy_translated"  # Local folder for translated files
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # OpenAI API
+FOLDER_ID = os.getenv("GOOGLE_FOLDER_ID")  # ID of the folder containing files to translate
+PROMPT_DOC_ID = os.getenv("GOOGLE_PROMPT_DOC_ID")  # ID of the Google Doc containing the translation prompt
+DESTINATION_FOLDER = os.getenv("DESTINATION_FOLDER", "./GCI_copy_downloads")  # Local folder for downloaded files
+TRANSLATED_FOLDER = os.getenv("TRANSLATED_FOLDER", "./GCI_copy_translated")  # Local folder for translated files
+
+#Check if API key is set properly in .env file. Error if not. 
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY environment variable is required. Please set it in your .env file.")
+if not FOLDER_ID:
+    raise ValueError("GOOGLE_FOLDER_ID environment variable is required. Please set it in your .env file.")
+if not PROMPT_DOC_ID:
+    raise ValueError("GOOGLE_PROMPT_DOC_ID environment variable is required. Please set it in your .env file.")
 
 class GoogleDriveHandler:
     """Class to handle Google Drive operations"""
@@ -38,11 +50,35 @@ class GoogleDriveHandler:
             status, done = downloader.next_chunk()
         return fh.getvalue().decode("utf-8")
     
+    def test_folder_access(self, folder_id):
+        """Test if we can access the folder and get its metadata."""
+        try:
+            # Try to get the folder metadata
+            folder_info = self.service.files().get(fileId=folder_id, fields="id, name, permissions").execute()
+            print(f"✅ Folder access successful!")
+            print(f"🔍 Folder Name: {folder_info.get('name', 'Unknown')}")
+            print(f"🔍 Folder ID: {folder_info.get('id')}")
+            return True
+        except Exception as e:
+            print(f"❌ Cannot access folder: {e}")
+            return False
+    
     def list_txt_files_in_folder(self, folder_id):
         """Return list of .txt file metadata in a Google Drive folder."""
         query = f"'{folder_id}' in parents and mimeType='text/plain' and trashed=false"
+        print(f"🔍 Debug: Searching with query: {query}")
+        print(f"🔍 Debug: Folder ID: {folder_id}")
         results = self.service.files().list(q=query, fields="files(id, name)").execute()
-        return results.get('files', [])
+        files = results.get('files', [])
+        print(f"🔍 Debug: Raw API response: {results}")
+        
+        # Debug: Let's also see ALL files in the folder
+        all_query = f"'{folder_id}' in parents and trashed=false"
+        all_results = self.service.files().list(q=all_query, fields="files(id, name, mimeType)").execute()
+        all_files = all_results.get('files', [])
+        print(f"🔍 Debug: ALL files in folder: {all_files}")
+        
+        return files
     
     def download_txt_file(self, file_id, file_name, destination_folder):
         """Download a .txt file from Google Drive to local folder."""
@@ -121,6 +157,11 @@ class TranslationManager:
     
     def process_files(self, folder_id, prompt_doc_id, target_language="English", wait_time=7200):
         """Process all text files in a folder, translate them, and optionally delete originals"""
+        print(f"🔍 Testing access to folder: {folder_id}")
+        if not self.drive_handler.test_folder_access(folder_id):
+            print("❌ Cannot proceed - folder access failed!")
+            return
+            
         prompt_text = self.drive_handler.get_prompt_from_doc(prompt_doc_id)
         print("✅ Loaded translation prompt.")
         
