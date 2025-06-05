@@ -7,10 +7,16 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Ignore virtual environments
+# Ignore virtual environments and environment files
 venv/
 .env/
 .venv/
+.env
+
+# Ignore Google service account keys (sensitive credentials)
+*.json
+google_key.json
+gen-lang-client-*.json
 
 # Optional: Ignore IDE/editor-specific files
 .vscode/
