@@ -30,3 +30,4 @@ Collaborator権限を付与されていない方はslackでOIKAWA Yunaにgithub�
   6.  スケジュール自動作成
   7.  画像自動翻訳
   8.  config.pyを作ることで各種API keyなどをmyclasses.pyから切り離す
+  9.  練習問題は別のプログラム・プロンプトを作る
