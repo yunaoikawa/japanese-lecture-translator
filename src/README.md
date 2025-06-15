@@ -22,12 +22,13 @@
 - 開発メモやレポートの多言語対応に便利です。
 
 ### `translate_txt.py`
-- `.txt` テキストファイルの翻訳を行います。
-- なぜか私の環境だとgoogle docs上の日本語を読み込めないので、現状、Google drive APIを使ってgoogle docs→txt fileに変換してからここで翻訳している。一発でgoogle docsを読み込む→翻訳　までしてくれるように改変してほしい。
+- `.txt` テキストファイルとGoogle Docsの翻訳を行います。
+- Google Docsの内容を直接読み込んで翻訳します。
+- 翻訳されたファイルは `TRANSLATED_FOLDER` に保存されます。
 
 
 
-実行方法　(translate_txt.py)
+#実行方法　(translate_txt.py)
 #セットアップガイド
 
 ## セットアップ手順

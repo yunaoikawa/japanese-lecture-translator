@@ -64,21 +64,28 @@ class GoogleDriveHandler:
             return False
     
     def list_txt_files_in_folder(self, folder_id):
-        """パスに設定されているフォルダ内にある .txtファイルのメタデータを取得"""
-        query = f"'{folder_id}' in parents and mimeType='text/plain' and trashed=false"
+        """パスに設定されているフォルダ内にある .txtファイルとGoogle Docsのメタデータを取得"""
+        query = f"'{folder_id}' in parents and (mimeType='text/plain' or mimeType='application/vnd.google-apps.document') and trashed=false"
         print(f" Debug: Searching with query: {query}")
         print(f" Debug: Folder ID: {folder_id}")
-        results = self.service.files().list(q=query, fields="files(id, name)").execute()
+        results = self.service.files().list(q=query, fields="files(id, name, mimeType)").execute()
         files = results.get('files', [])
-        print(f" Debug: Raw API response: {results}")
-        
-        # Debug: Let's also see ALL files in the folder
-        all_query = f"'{folder_id}' in parents and trashed=false"
-        all_results = self.service.files().list(q=all_query, fields="files(id, name, mimeType)").execute()
-        all_files = all_results.get('files', [])
-        print(f" Debug: ALL files in folder: {all_files}")
-        
+        print(f" Debug: Found {len(files)} files in folder")
         return files
+    
+    def get_doc_content(self, file_id):
+        """Get content from a Google Doc file"""
+        try:
+            request = self.service.files().export_media(fileId=file_id, mimeType='text/plain')
+            fh = io.BytesIO()
+            downloader = MediaIoBaseDownload(fh, request)
+            done = False
+            while not done:
+                status, done = downloader.next_chunk()
+            return fh.getvalue().decode("utf-8")
+        except Exception as e:
+            print(f"Error reading Google Doc: {e}")
+            return None
     
     def download_txt_file(self, file_id, file_name, destination_folder):
         """テキストファイルをダウンロード"""
@@ -154,9 +161,10 @@ class TranslationManager:
         self.translated_folder = translated_folder
         os.makedirs(self.destination_folder, exist_ok=True)
         os.makedirs(self.translated_folder, exist_ok=True)
-    
-    def process_files(self, folder_id, prompt_doc_id, target_language="English", wait_time=7200):
-        """Process all text files in a folder, translate them, and optionally delete originals"""
+    #Set delete_originals to True to delete the original files after translation.
+    #Rate Limit などの問題に出会した場合、Wait_timeを変更してください
+    def process_files(self, folder_id, prompt_doc_id, target_language="English", delete_originals=False, wait_time=0):
+        """Process all text files and Google Docs in a folder, translate them, and optionally delete originals"""
         print(f" Testing access to folder: {folder_id}")
         if not self.drive_handler.test_folder_access(folder_id):
             print(" Cannot proceed - folder access failed!")
@@ -165,18 +173,33 @@ class TranslationManager:
         prompt_text = self.drive_handler.get_prompt_from_doc(prompt_doc_id)
         print("✅ Loaded translation prompt.")
         
-        txt_files = self.drive_handler.list_txt_files_in_folder(folder_id)
-        print(f"📄 Found {len(txt_files)} .txt files in the folder.")
+        files = self.drive_handler.list_txt_files_in_folder(folder_id)
+        print(f"📄 Found {len(files)} files in the folder.")
         
-        for file in txt_files:
+        for file in files:
             file_id = file['id']
             file_name = file['name']
-            print(f"\n🔽 Downloading: {file_name}...")
-            file_path = self.drive_handler.download_txt_file(file_id, file_name, self.destination_folder)
+            mime_type = file['mimeType']
             
-            print(f"🌍 Translating file {file_name}...")
+            print(f"\n🔽 Processing: {file_name}...")
+            
+            # Handle Google Docs
+            if mime_type == 'application/vnd.google-apps.document':
+                print("📝 Reading Google Doc content...")
+                content = self.drive_handler.get_doc_content(file_id)
+                if not content:
+                    print(f"❌ Failed to read Google Doc: {file_name}")
+                    continue
+            # Handle text files
+            else:
+                print("📄 Downloading text file...")
+                file_path = self.drive_handler.download_txt_file(file_id, file_name, self.destination_folder)
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            
+            print(f"🌍 Translating content...")
             try:
-                translated_text = self.translator.translate_file(file_path, target_language, prompt_text)
+                translated_text = self.translator.translate_text(content, target_language, prompt_text)
             except Exception as e:
                 print(f"❌ Error translating {file_name}: {e}")
                 continue
@@ -186,12 +209,21 @@ class TranslationManager:
                 out_f.write(translated_text)
             print(f"✅ Saved translated file to: {output_path}")
             
-            print(f"🗑️ Deleting original file from Drive: {file_name}")
-            self.drive_handler.delete_drive_file(file_id)
+            if delete_originals:
+                print(f"🗑️ Deleting original file from Drive: {file_name}")
+                try:
+                    self.drive_handler.delete_drive_file(file_id)
+                except Exception as e:
+                    print(f"⚠️ Could not delete file: {e}")
+            else:
+                print("🔒 Keeping original file in Drive.")
             
             # Wait to avoid rate limits
             if wait_time > 0:
                 print(f"⏱️ Waiting {wait_time//60} minutes before next file...")
-                sleep(wait_time)
+                time.sleep(wait_time)
         
-        print("\n🎉 All files translated and originals deleted.")
+        if delete_originals:
+            print("\n🎉 All files translated and originals deleted.")
+        else:
+            print("\n🎉 All files translated. Originals kept in Drive.")
