@@ -32,7 +32,7 @@ def main():
         folder_id=FOLDER_ID,
         prompt_doc_id=PROMPT_DOC_ID,
         target_language="English",
-        wait_time=2*60*60  # 2 hours wait time to avoid rate limits
+        wait_time=0  # no wait time
     )
 
 if __name__ == "__main__":
