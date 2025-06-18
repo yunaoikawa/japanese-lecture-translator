@@ -24,10 +24,11 @@ Collaborator権限を付与されていない方はslackでOIKAWA Yunaにgithub�
 - これからできるようにしたいこと
   1.  regexでリンクからgoogle slide, notebook, scriptのIDを取得できるようにする（今は`https://colab.research.google.com/drive/1wPAkQ3DgqpJzQ6hCLAAA_r4Aa8?usp=drive_link`　みたいなのから1wPAkQ3DgqpJzQ6hCL60yuvbAAA_r4Aa8　の部分を手動で取ってきてハードコーディングしているので）
   2.  APIに送る前に、和英対応表 （https://docs.google.com/spreadsheets/d/1Jq87j4FvlDyt4wHHyGGCKmLVkWAxeJxSaiW0KulqKO8/edit?gid=0#gid=0） を使ってregexで直接翻訳してしまう。（”データ”vs”データセット”とかあるので、先に文字数順でソートしてからが良さそう）
-  3.  Google docをtxtに直さず直接翻訳（私の環境だと何故か日本語を認識しなくなってしまうので....)
+  3.  ✖ Google docをtxtに直さず直接翻訳（私の環境だと何故か日本語を認識しなくなってしまうので....)
   4.  全ファイルの自動アップロード
   5.  和英対応表を随時、自動でpromptに反映
   6.  スケジュール自動作成
   7.  画像自動翻訳
   8.  config.pyを作ることで各種API keyなどをmyclasses.pyから切り離す
   9.  練習問題は別のプログラム・プロンプトを作る
+  10.  完成したnotebookからscriptを作る
