@@ -32,7 +32,7 @@ def main():
         folder_id=FOLDER_ID,
         prompt_doc_id=PROMPT_DOC_ID,
         target_language="English",
-        wait_time=0  # no wait time
+        wait_time=0  # no wait time, Rate Limitに引っかかる場合は変更してください
     )
 
 if __name__ == "__main__":
